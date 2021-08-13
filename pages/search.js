@@ -1,14 +1,18 @@
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useRouter } from "next/dist/client/router";
-import {format} from "date-fns";
+import { format } from "date-fns";
+import InfoCard from "../components/InfoCard";
 
-function Search() {
+function Search({ searchResults }) {
     const router = useRouter();
     // console.log(router.query);
 
+
+    console.log(searchResults);
+
     //ES6 Destructuring
-    const {location, startDate, endDate, noOfGuests} = router.query;
+    const { location, startDate, endDate, noOfGuests } = router.query;
 
     const formattedStartDate = format(new Date(startDate), "dd MMMM yy");
     const formattedendDate = format(new Date(endDate), "dd MMMM yy");
@@ -16,7 +20,7 @@ function Search() {
 
     return (
         <div className="">
-            <Header placeholder={`${location} | ${range} | ${noOfGuests} guests`}/>
+            <Header placeholder={`${location} | ${range} | ${noOfGuests} guests`} />
 
 
             <main className="flex">
@@ -29,7 +33,21 @@ function Search() {
                         <p className="button">Cancellation Flexibility</p>
                         <p className="button">Price</p>
                         <p className="button">Rooms and Beds</p>
-                        <p className="button">More filters</p>                                            
+                        <p className="button">More filters</p>
+                    </div>
+
+                    <div>
+                        {searchResults.map(({ img, location, title, description, star, price, total }) => (
+                            <InfoCard
+                                img={img}
+                                location={location}
+                                title={title}
+                                description={description}
+                                star={star}
+                                price={price}
+                                total={total}
+                            />
+                        ))}
                     </div>
                 </section>
 
@@ -40,4 +58,14 @@ function Search() {
     )
 }
 
-export default Search
+export default Search;
+
+export async function getServerSideProps(context) {
+    const searchResults = await fetch("https://links.papareact.com/isz").then(res => res.json());
+
+    return {
+        props: {
+            searchResults,
+        },
+    }
+}
